@@ -1,9 +1,9 @@
 import { constants } from '../constants';
-import ScifiTile from '../assets/scifi_tile.png';
-import MouseHighlight from '../assets/highlight.png';
-import Panel from '../assets/panel.png';
-import Arrow from '../assets/arrow.png';
-import { Tile } from '../objects/Tile';
+import ChestClosed from '../assets/chest-closed.png';
+import Key from '../assets/key.png';
+import Tunic from '../assets/tunic.png';
+import TornMap from '../assets/map.png';
+import Cursor from '../assets/cursor.png';
 
 export class GamePlay extends Phaser.Scene {
 	constructor() {
@@ -13,138 +13,87 @@ export class GamePlay extends Phaser.Scene {
 	}
 
 	preload() {
-		this.load.image('scifi_tile',ScifiTile);
-		this.load.image('highlighter',MouseHighlight);
-		this.load.image('arrow',Arrow);
-
-		//Load UI assets
-		this.load.image('panel',Panel);
-	}
-
-	init(data) {
-		this.MAPSIZE = data.MAPSIZE;
-		this.cursor = this.input.keyboard.createCursorKeys();
-		this.camera = this.cameras.cameras[0];
-		this.camera.setBackgroundColor(0xB1B1B1);
-
-		this.dragstart = null;
-		this.dragend = null;
+		this.load.image('chest-closed',ChestClosed);
+		this.load.image('key',Key);
+		this.load.image('tunic',Tunic);
+		this.load.image('map',TornMap);
+		this.load.image('cursor',Cursor);
 	}
 
 	create() {
-		/*for(let i = 0;i < this.MAPSIZE.WIDTH;i++) {
-			for(let k = 0;k < this.MAPSIZE.HEIGHT;k++) {
-				let tile = this.add.sprite((i * constants.GAME.TILESIZE),(k * constants.GAME.TILESIZE),'scifi_tile').setOrigin(0);
-				tile.setInteractive();
-				tile.on('pointerdown',function() {
-					console.log('X: ' + i + ' Y: ' + k)
-				})
-			}
-		}*/
 
-		this.tile = new Tile({scene:this,x:0,y:0,key:'scifi_tile'})
+		this.zone = this.add.zone(200,200).setSize(200,200);
+		this.physics.world.enable(this.zone);
+		this.zone.body.setAllowGravity(false);
+		this.zone.body.moves = false;
 
-
-
-		this.fix = this.add.graphics();
-		this.selectorFix = this.add.graphics();
-		this.fix.setDefaultStyles({
-			fillStyle: {
-				color: 0x000000,
-				alpha: 1
-			}
+		let cursor = this.physics.add.sprite(500,20,'cursor');
+		cursor.setImmovable(true)
+		let circle = new Phaser.Geom.Circle(100,100,200);
+		let maps = this.physics.add.group({
+			key: 'map',
+			frameQuantity: 12,
+			collideWorldBounds: true,
+			bounceY: .75,
+			bounceX: .75
 		});
 
-		this.renderUI();
+		Phaser.Actions.PlaceOnCircle(maps.getChildren(),circle)
+
+		let chests = this.physics.add.group({
+			bounceX: .75,
+			bounceY: .75,
+			collideWorldBounds: true,
+		});
+
+		var chest1 = chests.create(300,10,'chest-closed').setVelocity(-100,0);
+		var chest2 = chests.create(350,50,'chest-closed').setVelocity(-200,-20);
+		var chest3 = chests.create(140,100,'chest-closed').setVelocity(200,-50);
+
+		let tunics = this.physics.add.group({
+			bounceX: .25,
+			bounceY: .25,
+			collideWorldBounds: true,
+			dragX: 10
+		});
+
+		var tunic1 = tunics.create(100,10,'tunic').setVelocity(-100,0);
+		var tunic2 = tunics.create(100,50,'tunic').setVelocity(-200,-20);
+		var tunic3 = tunics.create(100,100,'tunic').setVelocity(200,-50);
+
+
+		let context = this;
+		this.physics.add.overlap(maps,this.zone)
+
+		this.input.on('pointermove',function(pointer) {
+
+			cursor.setPosition(pointer.x,pointer.y)
+		})
+
+		this.input.on('pointerdown',function(pointer) {
+			Phaser.Utils.Array.Each(
+				chests.getChildren(),
+				context.physics.moveToObject,
+				context.physics,
+				cursor,
+				120
+			)
+
+			Phaser.Utils.Array.Each(
+				maps.getChildren(),
+				context.physics.moveToObject,
+				context.physics,
+				cursor,
+				120
+			)
+		});
+
+		this.input.on('pointerup',function(pointer) {
+
+		});
 	}
 
 	update() {
-		//CAMERA CONTROLS BEGIN
-		if(this.cursor.right.isDown) {
-			if(this.camera.scrollX < (this.MAPSIZE.WIDTH * constants.GAME.TILESIZE) - (constants.GAME.WIDTH / 2)) {
-				this.camera.scrollX += constants.GAME.TILESIZE;
-				this.arrow.setVisible(true);
-				this.arrow.angle = 90;
-			}
-		}
-
-		if(this.cursor.left.isDown) {
-			if(this.camera.scrollX > -400) {
-				this.camera.scrollX -= constants.GAME.TILESIZE;
-				this.arrow.setVisible(true);
-				this.arrow.angle = -90;
-			}
-		}
-
-		if(this.cursor.up.isDown) {
-			if(this.camera.scrollY > -300) {
-				this.camera.scrollY -= constants.GAME.TILESIZE;
-				this.arrow.setVisible(true);
-				this.arrow.angle = 0;
-			}
-		}
-
-		if(this.cursor.down.isDown) {
-			if(this.camera.scrollY < (this.MAPSIZE.HEIGHT * constants.GAME.TILESIZE) - (constants.GAME.HEIGHT / 2)) {
-				this.camera.scrollY += constants.GAME.TILESIZE;
-				this.arrow.setVisible(true);
-				this.arrow.angle = 180;
-			}
-		}
-		//CAMERA CONTROLS END
-
-		if(this.cursor.down.isUp && this.cursor.up.isUp && this.cursor.left.isUp && this.cursor.right.isUp) {
-			this.arrow.setVisible(false)
-		}
-
-		//Controls for displaying the highlight square.
-		if(this.highlighter) {
-			if(constants.GAME.DEBUG) {
-				this.input_x.text = 'Pointer X: ' + Math.floor(this.input.x / constants.GAME.TILESIZE);
-				this.input_y.text = 'Pointer Y: ' + Math.floor(this.input.y / constants.GAME.TILESIZE);
-			}
-
-			this.highlighter.x = Math.floor(this.input.x / constants.GAME.TILESIZE) * constants.GAME.TILESIZE;
-			this.highlighter.y = Math.floor(this.input.y / constants.GAME.TILESIZE) * constants.GAME.TILESIZE;
-		}
-
-		//Drag controls.
-		if(this.input.activePointer.isDown) {
-
-		}
-	}
-
-	renderUI() {
-		this.panel = this.add.sprite(0,0,'panel').setOrigin(0);
-		//Keep the ui fixed onto the camera
-		this.panel.scrollFactorX = 0;
-		this.panel.scrollFactorY = 0;
-
-		//Add the highlight item to teh map for selection
-		this.highlighter = this.add.sprite(0,0,'highlighter').setOrigin(0);
-		this.highlighter.scrollFactorX = 0;
-		this.highlighter.scrollFactorY = 0;
-
-		//Add the arrow sprite to indicate where teh user is moving the screen to.
-		this.arrow = this.add.sprite(constants.GAME.WIDTH - 50,constants.GAME.HEIGHT - 50,'arrow').setScale(0.2).setVisible(false);
-		this.arrow.scrollFactorX = 0;
-		this.arrow.scrollFactorY = 0;
-		this.arrow.setOrigin(0.5,0.5)
-		
-		if(constants.GAME.DEBUG) {
-			//Draw the debug window stuff.
-			this.debug_display = this.fix.fillRect(10,40,200,250);
-			this.debug_display.scrollFactorX = 0;
-			this.debug_display.scrollFactorY = 0;
-
-			this.input_x = this.add.text(15,45,'Pointer X: ');
-			this.input_x.scrollFactorX = 0;
-			this.input_x.scrollFactorY = 0;
-
-			this.input_y = this.add.text(15,65,'Pointer Y: ');
-			this.input_y.scrollFactorX = 0;
-			this.input_y.scrollFactorY = 0;
-		}
-
+		this.zone.body.debugBodyColor = this.zone.body.touching.none ? 0x0ff00f : 0x0ff0000;
 	}
 }
