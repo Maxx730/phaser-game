@@ -1,7 +1,7 @@
 export const constants = {
 	GAME: {
-		WIDTH: 300,
-		HEIGHT:200,
+		WIDTH: 192,
+		HEIGHT:128,
 		TILESIZE: 32,
 		DEBUG: true,
 		MAPSIZE: {
@@ -16,7 +16,14 @@ export const constants = {
 		}
 	},
 	SCENES: {
-		MENU: 'MENU',
-		GAMEPLAY: 'GAMEPLAY'
+		MENUS: {
+
+		},
+		TOWNS: {
+			TOWNONE: 'TownOne'
+		},
+		Routes: {
+			
+		}
 	}
 }

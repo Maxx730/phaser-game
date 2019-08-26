@@ -1,7 +1,8 @@
 import Phaser from "phaser";
-import { MenuScene } from './scenes/MenuScene';
-import { GamePlay } from './scenes/GamePlay';
 import { constants } from './constants';
+
+//IMPORT SCENES
+import { TownOne } from './scenes/towns/town-1/TownOne';
 
 const config = {
   type: Phaser.AUTO,
@@ -9,8 +10,7 @@ const config = {
   width: constants.GAME.WIDTH,
   height: constants.GAME.HEIGHT,
   scene: [
-	  MenuScene,
-	  GamePlay
+	  TownOne
   ],
   physics: {
     default: 'arcade',
@@ -18,8 +18,7 @@ const config = {
 		  debug: false
 	  }
   },
-  zoom: 4,
-  pixelArt: true
+  zoom: 4
 };
 
 const game = new Phaser.Game(config);

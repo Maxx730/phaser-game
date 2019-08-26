@@ -16,8 +16,7 @@ export default class LootInfo extends Phaser.GameObjects.Sprite {
         config.coin.anims.play('loot-spin');
 
         this.config = config;
-        scene.add.existing(this)
-        console.log(this.LootAmount)
+        scene.add.existing(this).setDepth(10)
     }
 
     preUpdate() {
