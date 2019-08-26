@@ -2,10 +2,11 @@ export default class Slime extends Phaser.Physics.Arcade.Sprite {
     constructor(scene,x,y,config) {
         super(scene,x,y,config.key);
 
+        scene.physics.world.enable(this);
         scene.add.existing(this)
 
         this.directions = ['UP','DOWN','LEFT','RIGHT'];
-
+        this.setSize(16,16,true)
         this._scene = scene;
         this.last = scene.time.now;
 
@@ -39,7 +40,7 @@ export default class Slime extends Phaser.Physics.Arcade.Sprite {
         this.anims.load('slime-forward');
         this.anims.load('slime-up');
         this.anims.load('slime-idle');
-        this.anims.play('slime-forward');
+        this.anims.play('slime-idle');
     }
 
     randomizeDirection() {

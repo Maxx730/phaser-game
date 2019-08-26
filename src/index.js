@@ -13,12 +13,13 @@ const config = {
 	  GamePlay
   ],
   physics: {
-	  default: 'arcade',
+    default: 'arcade',
 	  arcade :{
-		  debug: true
+		  debug: false
 	  }
   },
-  zoom: 4
+  zoom: 4,
+  pixelArt: true
 };
 
 const game = new Phaser.Game(config);
