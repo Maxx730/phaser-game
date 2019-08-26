@@ -1,4 +1,6 @@
 import { constants } from '../constants';
+import { STATE } from '../state';
+
 //IMAGE ASSETS
 import PlayerIMG from '../assets/units/player.png';
 import SlimeIMG from '../assets/units/slime.png';
@@ -9,6 +11,7 @@ import GreenGemIMG from '../assets/items/Items_GreenGem.png';
 import BlueGemIMG from '../assets/items/gem_4.png';
 import CoinIMG from '../assets/items/coin_2.png';
 import UiIMG from '../assets/ui/ui.png';
+import LootCoin from '../assets/items/Coin_Sparkle.png'
 
 //GAME OBJECTS
 	//UNITS
@@ -25,6 +28,7 @@ import UiIMG from '../assets/ui/ui.png';
 
 	//UI
 	import HealthBars from '../objects/ui/HealthBars';
+	import LootInfo from '../objects/ui/LootInfo';
 
 	//TILEMAPS
 	import DungeonTiles from '../assets/tilemaps/dungeon/sheet.png';
@@ -55,16 +59,24 @@ export class GamePlay extends Phaser.Scene {
 		this.load.image('BlueGem',BlueGemIMG);
 		this.load.image('Coin',CoinIMG);
 		this.load.spritesheet('HealthUI',UiIMG,{frameWidth: 116,frameHeight: 81});
+		this.load.spritesheet('LootCoin',LootCoin,{frameWidth: 32,frameHeight: 32});
 	}
 
 	create() {
-
+		const _this = this;
+		
+		this.lootInfo = new LootInfo(this,0,0,{
+			coin: _this.add.sprite(292,10,'LootCoin'),
+			STATE: STATE
+		});
 		this.fix = this.add.graphics();
 		this.HealthUI = new HealthBars(this,0,0,'HealthUI')
 		this.enemies = this.physics.add.group({
 			collideWorldBounds: true,
 			dragX: 40,
-			dragY: 40
+			dragY: 40,
+			bounceX: .8,
+			bounceY: .8
 		});
 		this.loot = this.physics.add.group({
 			collideWorldBounds: true,
@@ -72,8 +84,7 @@ export class GamePlay extends Phaser.Scene {
 			dragY: 40
 		});
 		this.decorations = new Array();
-		const _this = this;
-		this.house = new House(this)
+		this.house = new Dungeon(this)
 
 		this.Player = new Player(this,100,100,{key: 'Player'});
 
@@ -91,6 +102,10 @@ export class GamePlay extends Phaser.Scene {
 		this.loot.add(new Item(this,70,170,{key:'Coin'}))
 		this.physics.add.collider(this.Player,this.loot);
 		this.physics.add.collider(this.Player,this.house.walls)
+
+		for(let i = 0;i < 500;i++) {
+			this.loot.add(new Item(this,Math.random(100) * 100,Math.random(100) * 100,{key:'Coin'}))
+		}
 
 		
 		//Add the enemies to the scene.
@@ -183,6 +198,7 @@ export class GamePlay extends Phaser.Scene {
 			}
 			
 			if (distance < 20) {
+				STATE.LOOT.COINS += 1
 				loot.destroy();
 			}
 		})

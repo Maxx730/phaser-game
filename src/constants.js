@@ -1,7 +1,7 @@
 export const constants = {
 	GAME: {
-		WIDTH: 384,
-		HEIGHT:256,
+		WIDTH: 300,
+		HEIGHT:200,
 		TILESIZE: 32,
 		DEBUG: true,
 		MAPSIZE: {

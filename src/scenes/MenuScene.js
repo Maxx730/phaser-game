@@ -1,5 +1,8 @@
 import { constants } from '../constants';
 
+//IMPORT UI ELEMENTS
+import StartIMG from '../assets/ui/Start.png';
+
 export class MenuScene extends Phaser.Scene {
 	constructor() {
 		super({
@@ -8,12 +11,16 @@ export class MenuScene extends Phaser.Scene {
 	}
 
 	preload() {
-
+		this.load.image('start-button',StartIMG);
 	}
 
 	create() {
-		console.log('MENUSCENE INITIALIZED')
-		this.scene.start(constants.SCENES.GAMEPLAY,{MAPSIZE:constants.GAME.MAPSIZE.LARGE})
+		const _this = this;
+		this.StartButton = this.add.image(150,100,'start-button');
+		this.StartButton.setInteractive();
+		this.StartButton.on('pointerdown',function(pointer) {
+			_this.scene.start(constants.SCENES.GAMEPLAY)
+		});
 	}
 
 	update() {

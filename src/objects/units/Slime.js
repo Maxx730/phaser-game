@@ -12,7 +12,21 @@ export default class Slime extends Phaser.Physics.Arcade.Sprite {
 
         let IdleAnimation = {
             key: 'slime-idle',
-            frames: scene.anims.generateFrameNumbers('Slime',{start: 0, end: 2}),
+            frames: [
+                {
+                    key: 'Slime',
+                    frame: 0,
+                    duration: 640
+                },                {
+                    key: 'Slime',
+                    frame: 1,
+                    duration: 80
+                },                {
+                    key: 'Slime',
+                    frame: 2,
+                    duration: 640
+                }
+            ],
             frameRate: 3,
             yoyo: true,
             repeat: -1
