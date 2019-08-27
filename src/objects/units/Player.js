@@ -6,14 +6,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         scene.physics.world.enable(this);
         scene.add.existing(this);
-        this.setImmovable(true);
-        this.setDrag(100);
-        this.setSize(10,10);
+		this.setDrag(200);
+		this.setFriction(100)
 
         this.scene = scene;
 		this.SPEED = 45;
 		this.ATTACKING = false;
 		this.DIRECTION = 'down';
+
+		if(config.dialog) {
+			this.dialog = config.dialog
+		}
 
 		//Create the player control key bindings and add event listeners
 		this.keys = scene.input.keyboard.addKeys({
@@ -24,52 +27,63 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 		})
 
 		this.keys.up.on('down',function(event) {
-			this.anims.play('walk-up');
-			this.DIRECTION = 'up';
+			if(this.dialog && !this.dialog.IS_OPEN) {
+				this.anims.play('walk-up');
+				this.DIRECTION = 'up';
+			}
 		},this);
 
 		this.keys.down.on('down',function(event) {
-			this.anims.play('walk-down');
-			this.DIRECTION= 'down';
+			if(this.dialog && !this.dialog.IS_OPEN) {
+				this.anims.play('walk-down');
+				this.DIRECTION= 'down';
+			}
 		},this);
 
 		this.keys.right.on('down',function(event) {
-			this.flipX = false;
-			this.anims.play('walk-right');
-			this.DIRECTION = 'right';
+			if(this.dialog && !this.dialog.IS_OPEN) {
+				this.flipX = true;
+				this.anims.play('walk-right');
+				this.DIRECTION = 'right';
+			}
 		},this);
 
 		this.keys.left.on('down',function(event) {
-			this.anims.play('walk-right');
-			this.flipX = true;
-			this.DIRECTION = 'left';
+			if(this.dialog && !this.dialog.IS_OPEN) {
+				this.anims.play('walk-right');
+				this.flipX = false;
+				this.DIRECTION = 'left';
+			}
 		},this);
 
 		this.keys.down.on('up',function() {
 			if(!this.keys.up.isDown && !this.keys.left.isDown && !this.keys.right.isDown){
 				this.anims.play('idle');
 				this.flipX = false;
+				this.DIRECTION = 'down';
 			}
 		},this)
 
 		this.keys.right.on('up',function() {
 			if(!this.keys.down.isDown && !this.keys.up.isDown && !this.keys.left.isDown){
-				this.anims.play('idle');
+				this.anims.stop();
 				this.flipX = false;
+				this.DIRECTION = 'right';
 			}
 		},this)
 
 		this.keys.up.on('up',function() {
 			if(!this.keys.down.isDown && !this.keys.left.isDown && !this.keys.right.isDown){
-				this.anims.play('idle');
+				this.anims.stop();
 				this.flipX = false;
+				this.DIRECTION = 'up';
 			}
 		},this)
 
 		this.keys.left.on('up',function() {
 			if(!this.keys.up.isDown && !this.keys.down.isDown && !this.keys.right.isDown){
-				this.anims.play('idle');
-				this.flipX = false;
+				this.anims.stop();
+				this.DIRECTION = 'left';
 			}
 		},this);
 
@@ -80,14 +94,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 {
                     key: 'Player',
                     frame: 0,
-                    duration: 640
-                },                {
-                    key: 'Player',
-                    frame: 1,
-                    duration: 80
-                },                {
-                    key: 'Player',
-                    frame: 2,
                     duration: 640
                 }
             ],//scene.anims.generateFrameNumbers('Player',{start: 0, end: 2}),
@@ -101,22 +107,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             frames: [
                 {
                     key: 'Player',
-                    frame: 8,
+                    frame: 0,
                     duration: 100
                 },
                 {
                     key: 'Player',
-                    frame: 9,
+                    frame: 1,
                     duration: 100
                 },
                 {
                     key: 'Player',
-                    frame: 10,
-                    duration: 100
-                },
-                {
-                    key: 'Player',
-                    frame: 11,
+                    frame: 2,
                     duration: 100
                 }
             ],
@@ -129,24 +130,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             frames: [
                 {
                     key: 'Player',
-                    frame: 12,
+                    frame: 3,
                     duration: 100
                 },
                 {
                     key: 'Player',
-                    frame: 13,
+                    frame: 4,
                     duration: 100
                 },
                 {
                     key: 'Player',
-                    frame: 14,
+                    frame: 5,
                     duration: 100
-                },
-                {
-                    key: 'Player',
-                    frame: 15,
-                    duration: 100
-                }
+				}
             ],
             repeat: -1
         }
@@ -156,22 +152,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             frames: [
                 {
                     key: 'Player',
-                    frame: 16,
+                    frame: 6,
                     duration: 100
                 },
                 {
                     key: 'Player',
-                    frame: 17,
+                    frame: 7,
                     duration: 100
                 },
                 {
                     key: 'Player',
-                    frame: 18,
-                    duration: 100
-                },
-                {
-                    key: 'Player',
-                    frame: 19,
+                    frame: 8,
                     duration: 100
                 }
             ],
@@ -311,19 +302,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 		super.preUpdate(time,delta);
 
 		if(this.keys.up.isDown) {
-			this.setVelocityY(-this.SPEED);
+			(this.dialog && !this.dialog.IS_OPEN) && this.setVelocityY(-this.SPEED);
 		}
 
 		if(this.keys.down.isDown) {
-			this.setVelocityY(this.SPEED);
+			(this.dialog && !this.dialog.IS_OPEN) && this.setVelocityY(this.SPEED);
 		}
 
 		if(this.keys.right.isDown) {
-			this.setVelocityX(this.SPEED);
+			(this.dialog && !this.dialog.IS_OPEN) && this.setVelocityX(this.SPEED);
 		}
 
 		if(this.keys.left.isDown) {
-			this.setVelocityX(-this.SPEED);
+			(this.dialog && !this.dialog.IS_OPEN) && this.setVelocityX(-this.SPEED);
 		}
     }
 }
