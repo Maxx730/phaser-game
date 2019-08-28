@@ -1,5 +1,6 @@
 import { constants } from '../../../constants';
 import { STATE } from '../../../state';
+import StateHelper from '../../../util/StateHelper';
 
 //Tilemap
 import TownOneIMG from '../../../assets/tilemaps/village.png';
@@ -37,13 +38,17 @@ export class TownOne extends Phaser.Scene {
 		this.load.image('HealthBars',HealthIMG);
 		this.load.spritesheet('HumanNPC',NPCImg,{frameWidth:16,frameHeight:16});
 		this.load.spritesheet('Bubbles',BubbleIMG,{frameWidth: 16,frameHeight: 16});
-		this.load.spritesheet('GrayDog',GrayDogIMG,{frameWidth: 15,frameHeight: 20});
-		this.load.spritesheet('Chicken',Chicken,{frameWidth: 15,frameHeight: 20});
+
 	}
 
 	create() {
+		this.fix = this.add.graphics();
+		this.stateHelper = new StateHelper(STATE)
+		this.cameras.main.fadeIn(1500);
 		this.NPCs = this.physics.add.group({
-			immovable: true
+			dragX: 15,
+			dragY: 15,
+			collideWorldBounds: true
 		});
 
 		//Create the actual tilemap.
@@ -73,19 +78,34 @@ export class TownOne extends Phaser.Scene {
 		this.physics.add.collider(this.player,this.trees);
 
 		//Add NPCs to map
-		this.NPCs.add(new NPC(this,50,50,{key:'HumanNPC',dialog:this.dialog,message:['Nigglety Nigglety Nog, the','cat buttfucked the frog...'],id:'human1'}));
+		this.NPCs.add(new NPC(this,50,50,{key:'HumanNPC',dialog:this.dialog,id:'human1'}));
 		this.NPCs.add(new NPC(this,80,30,{key:'HumanNPC',dialog:this.dialog,message:['The frog gave head, but now','its dead...'],id:'human2'}));
 
-		this.NPCs.add(new NPC(this,120,230,{key:'HumanNPC',dialog:this.dialog,message:['Looks like that stupid bitch','Karol dug another trench with','her face...'],id:'human3'}));
-		this.NPCs.add(new NPC(this,76,230,{key:'GrayDog',dialog:this.dialog,message:['Arf! Arf!'],id:'dog1'}));
-		this.NPCs.add(new NPC(this,16,130,{key:'Chicken',dialog:this.dialog,message:['Fucker No Like'],id:'chicken1'}));
+		this.NPCs.add(new NPC(this,120,230,{key:'HumanNPC',dialog:this.dialog,id:'human3'}));
+		this.NPCs.add(new NPC(this,76,230,{key:'HumanNPC',dialog:this.dialog,message:['Arf! Arf!'],id:'dog1'}));
+		this.NPCs.add(new NPC(this,16,130,{key:'HumanNPC',dialog:this.dialog,message:['Fucker No Like'],id:'chicken1'}));
 
+		this.physics.add.collider(this.NPCs,this.NPCs);
+		this.physics.add.collider(this.NPCs,this.buildings);
+		this.physics.add.collider(this.NPCs,this.decorations);
 		this.physics.add.collider(this.NPCs,this.player,null,function(player,npc) {
-			npc.showMessage();
+			if(npc.data.MESSAGE) {
+				npc.showMessage();
+			}
 		},this);
+
+		//Loads spacial tree 
+		this.physics.world.step(0);
 	}
 
 	update() {
-
+		//Logic for finding the nearest NPC
+		this.NPCs.getChildren().map(npc => {
+			if(Phaser.Math.Distance.Between(this.player.x,this.player.y,npc.x,npc.y) < 50) {
+				npc.data.MESSAGE && npc.bubble.setVisible(true) 
+			} else {
+				npc.data.MESSAGE && npc.bubble.setVisible(false) 	
+			}
+		});
 	}
 }

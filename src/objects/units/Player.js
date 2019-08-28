@@ -1,4 +1,3 @@
-import { Scenes } from "phaser";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene,x,y,config) {
@@ -7,7 +6,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         scene.physics.world.enable(this);
         scene.add.existing(this);
 		this.setDrag(200);
-		this.setFriction(100)
 
         this.scene = scene;
 		this.SPEED = 45;
@@ -62,6 +60,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				this.flipX = false;
 				this.DIRECTION = 'down';
 			}
+
+			if(this.keys.left.isDown) {
+				this.anims.play('walk-right');
+			}
+
+			if(this.keys.right.isDown) {
+				this.anims.play('walk-right');
+				this.flipX = true
+			}
 		},this)
 
 		this.keys.right.on('up',function() {
@@ -69,6 +76,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				this.anims.stop();
 				this.flipX = false;
 				this.DIRECTION = 'right';
+			}
+			
+			if(this.keys.down.isDown) {
+				this.anims.play('walk-down');
+			}
+
+			if(this.keys.up.isDown) {
+				this.anims.play('walk-up');
 			}
 		},this)
 
@@ -78,12 +93,29 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				this.flipX = false;
 				this.DIRECTION = 'up';
 			}
+
+			if(this.keys.left.isDown) {
+				this.anims.play('walk-right');
+			}
+
+			if(this.keys.right.isDown) {
+				this.anims.play('walk-right');
+				this.flipX = true
+			}
 		},this)
 
 		this.keys.left.on('up',function() {
 			if(!this.keys.up.isDown && !this.keys.down.isDown && !this.keys.right.isDown){
 				this.anims.stop();
 				this.DIRECTION = 'left';
+			}
+
+			if(this.keys.down.isDown) {
+				this.anims.play('walk-down');
+			}
+
+			if(this.keys.up.isDown) {
+				this.anims.play('walk-up');
 			}
 		},this);
 
@@ -107,21 +139,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             frames: [
                 {
                     key: 'Player',
-                    frame: 0,
-                    duration: 100
+                    frame: 0
                 },
                 {
                     key: 'Player',
-                    frame: 1,
-                    duration: 100
+                    frame: 1
                 },
                 {
                     key: 'Player',
-                    frame: 2,
-                    duration: 100
+                    frame: 2
                 }
             ],
-            frameRate: 60,
+            frameRate: 6,
             repeat: -1
         }
 
@@ -169,124 +198,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             repeat: -1
         }
 
-        let PointUpAnimation = {
-            key: 'point-up',
-            frames: [
-                {
-                    key: 'Player',
-                    frame: 4,
-                    duration: 100
-                },
-                {
-                    key: 'Player',
-                    frame: 5,
-                    duration: 100
-                },
-                {
-                    key: 'Player',
-                    frame: 6,
-                    duration: 100
-                }
-            ],
-            repeat: -1
-		}
-		
-		let AttackDownAnimation = {
-            key: 'attack-down',
-            frames: [
-                {
-                    key: 'Player',
-                    frame: 20,
-                    duration: 50
-                },
-                {
-                    key: 'Player',
-                    frame: 21,
-                    duration: 50
-                },
-                {
-                    key: 'Player',
-                    frame: 22,
-                    duration: 50
-				},
-				{
-                    key: 'Player',
-                    frame: 23,
-                    duration: 50
-                }
-			]
-		}
-		
-		let AttackUpAnimation = {
-            key: 'attack-up',
-            frames: [
-                {
-                    key: 'Player',
-                    frame: 28,
-                    duration: 50
-                },
-                {
-                    key: 'Player',
-                    frame: 29,
-                    duration: 50
-                },
-                {
-                    key: 'Player',
-                    frame: 30,
-                    duration: 50
-				},
-				{
-                    key: 'Player',
-                    frame: 31,
-                    duration: 50
-                }
-			]
-		}
-		
-		let AttackRightAnimation = {
-            key: 'attack-right',
-            frames: [
-                {
-                    key: 'Player',
-                    frame: 24,
-                    duration: 50
-                },
-                {
-                    key: 'Player',
-                    frame: 25,
-                    duration: 50
-                },
-                {
-                    key: 'Player',
-                    frame: 26,
-                    duration: 50
-				},
-				{
-                    key: 'Player',
-                    frame: 27,
-					duration: 50
-				}
-			]
-        }
 
 		//Create a load all the needed animations
         scene.anims.create(IdleAnimation);
         scene.anims.create(WalkDownAnimation);
         scene.anims.create(WalkRightAnimation);
 		scene.anims.create(WalkUpAnimation);
-		scene.anims.create(PointUpAnimation);
-		scene.anims.create(AttackDownAnimation);
-		scene.anims.create(AttackUpAnimation);
-		scene.anims.create(AttackRightAnimation);
-		this.anims.load('attack-right');
         this.anims.load('idle');
         this.anims.load('walk-down');
         this.anims.load('walk-right');
 		this.anims.load('walk-up');
-		this.anims.load('point-up');
-		this.anims.load('attack-down');
-		this.anims.load('attack-up');
-		this.anims.play('idle');
 
 		this.on('animationcomplete',function(action) {
 			if(action.key === 'attack-down' || action.key === 'attack-up' || action.key === 'attack-right') {

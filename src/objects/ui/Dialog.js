@@ -10,18 +10,6 @@ export default class Dialog extends Phaser.GameObjects.Sprite {
 
 		this.setVisible(false);
 		this.dialogText.setVisible(false);
-
-		//Create the player control key bindings and add event listeners
-		this.keys = scene.input.keyboard.addKeys({
-			enter:Phaser.Input.Keyboard.KeyCodes.ENTER
-		});
-
-		this.keys.enter.on('down',function(){
-			this.dialogText.setVisible(false);
-			this.dialogText.text = '';
-			this.setVisible(false);
-			this.IS_OPEN = false;
-		},this);
 	}
 
 	setMessage(message) {
