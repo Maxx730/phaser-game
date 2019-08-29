@@ -21,6 +21,7 @@ import DialogIMG from '../../../assets/ui/dialog-box.png';
 import Dialog from '../../../objects/ui/Dialog';
 import HealthIMG from '../../../assets/ui/health-small.png';
 import Health from '../../../objects/ui/Health';
+import XButtonIMG from '../../../assets/ui/x-button.png';
 
 export class TownOne extends Phaser.Scene {
 	constructor() {
@@ -36,6 +37,7 @@ export class TownOne extends Phaser.Scene {
 		this.load.spritesheet('Player',PlayerIMG,{frameWidth: 16,frameHeight: 16});
 		this.load.image('DialogBox',DialogIMG);
 		this.load.image('HealthBars',HealthIMG);
+		this.load.image('XButton',XButtonIMG);
 		this.load.spritesheet('HumanNPC',NPCImg,{frameWidth:16,frameHeight:16});
 		this.load.spritesheet('Bubbles',BubbleIMG,{frameWidth: 16,frameHeight: 16});
 
@@ -48,7 +50,8 @@ export class TownOne extends Phaser.Scene {
 		this.NPCs = this.physics.add.group({
 			dragX: 15,
 			dragY: 15,
-			collideWorldBounds: true
+			collideWorldBounds: true,
+			immovable: true
 		});
 
 		//Create the actual tilemap.
@@ -60,7 +63,7 @@ export class TownOne extends Phaser.Scene {
 		this.trees = this.map.createStaticLayer('Trees',this.tiles,0,0);
 		this.buildings = this.map.createStaticLayer('Buildings',this.tiles,0,0);
 		this.decorations = this.map.createStaticLayer('Decorations',this.tiles,0,0);
-		this.top = this.map.createStaticLayer('Top',this.tiles,0,0);
+		this.top = this.map.createStaticLayer('Top',this.tiles,0,0).setDepth(12);
 		this.ground.setCollisionByProperty({collides:true});
 		this.buildings.setCollisionByProperty({collides:true});
 		this.decorations.setCollisionByProperty({collides:true});
@@ -90,7 +93,8 @@ export class TownOne extends Phaser.Scene {
 		this.physics.add.collider(this.NPCs,this.decorations);
 		this.physics.add.collider(this.NPCs,this.player,null,function(player,npc) {
 			if(npc.data.MESSAGE) {
-				npc.showMessage();
+				this.dialog.xButton.setVisible(true);
+				npc.showMessage()
 			}
 		},this);
 
