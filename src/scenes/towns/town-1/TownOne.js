@@ -26,7 +26,7 @@ import XButtonIMG from '../../../assets/ui/x-button.png';
 export class TownOne extends Phaser.Scene {
 	constructor() {
 		super({
-			key: constants.SCENES.TOWNS.TOWNONE
+			key: constants.SCENES.TOWNS.TOWNONE.ID
 		});
 	}
 
@@ -81,19 +81,15 @@ export class TownOne extends Phaser.Scene {
 		this.physics.add.collider(this.player,this.trees);
 
 		//Add NPCs to map
-		this.NPCs.add(new NPC(this,50,50,{key:'HumanNPC',dialog:this.dialog,id:'human1'}));
-		this.NPCs.add(new NPC(this,80,30,{key:'HumanNPC',dialog:this.dialog,message:['The frog gave head, but now','its dead...'],id:'human2'}));
-
-		this.NPCs.add(new NPC(this,120,230,{key:'HumanNPC',dialog:this.dialog,id:'human3'}));
-		this.NPCs.add(new NPC(this,76,230,{key:'HumanNPC',dialog:this.dialog,message:['Arf! Arf!'],id:'dog1'}));
-		this.NPCs.add(new NPC(this,16,130,{key:'HumanNPC',dialog:this.dialog,message:['Fucker No Like'],id:'chicken1'}));
+		constants.SCENES.TOWNS.TOWNONE.NPCS.map(npc => {
+			this.NPCs.add(new NPC(this,50,50,{key:'HumanNPC',dialog:this.dialog,data:npc}));
+		})
 
 		this.physics.add.collider(this.NPCs,this.NPCs);
 		this.physics.add.collider(this.NPCs,this.buildings);
 		this.physics.add.collider(this.NPCs,this.decorations);
 		this.physics.add.collider(this.NPCs,this.player,null,function(player,npc) {
-			if(npc.data.MESSAGE) {
-				this.dialog.xButton.setVisible(true);
+			if(npc.DATA.MESSAGES) {
 				npc.showMessage()
 			}
 		},this);
@@ -106,9 +102,9 @@ export class TownOne extends Phaser.Scene {
 		//Logic for finding the nearest NPC
 		this.NPCs.getChildren().map(npc => {
 			if(Phaser.Math.Distance.Between(this.player.x,this.player.y,npc.x,npc.y) < 50) {
-				npc.data.MESSAGE && npc.bubble.setVisible(true) 
+				npc.DATA.MESSAGES && npc.bubble.setVisible(true) 
 			} else {
-				npc.data.MESSAGE && npc.bubble.setVisible(false) 	
+				npc.DATA.MESSAGES && npc.bubble.setVisible(false) 	
 			}
 		});
 	}

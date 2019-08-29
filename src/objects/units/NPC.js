@@ -9,18 +9,16 @@ export default class NPC extends Phaser.Physics.Arcade.Sprite {
 		scene.add.existing(this);
 
 		this._scene = scene;
-		this.occupied = false;
 		this.movement = scene.time.addEvent({delay: 2000,callback:this.moveDirection,callbackScope:this,loop:true})
 		this.id = config.id ? config.id : null;
-		this.config = config;
-		this.data = {
-			MESSAGE: config.message ? config.message : null,
-			HEALTH: 100,
-			INVENTORY:[]
-		}
+
+		this.OCCUPIED = false;
+		this.DIALOG = config.dialog;
+		this.DATA = config.data;
+		this.CURRENT_LINE = 0;
 
 		//Only show the diaog bubble if the NPC has a message.
-		if(this.data.MESSAGE) {
+		if(this.DATA.MESSAGES) {
 			this.bubble = scene.add.sprite(x - 2 ,y - 17,'Bubbles');
 			this.bubble.setVisible(false);
 			this.bubble.setFrame(125)
@@ -32,11 +30,24 @@ export default class NPC extends Phaser.Physics.Arcade.Sprite {
 			enter:Phaser.Input.Keyboard.KeyCodes.ENTER
 		});
 		this.keys.enter.on('down',function(){
-			this.config.dialog.dialogText.setVisible(false);
-			this.config.dialog.dialogText.text = '';
-			this.config.dialog.setVisible(false);
-			this.config.dialog.IS_OPEN = false;
-			this.occupied = false;
+			if(this.DATA.MESSAGES[0].LINES.length > 1 && this.CURRENT_LINE < (this.DATA.MESSAGES[0].LINES.length - 1)) {
+				this.CURRENT_LINE++;
+				this.showMessage();
+			} else {
+				//If the last line had been reached and it could complete a quest, complete it.
+				if(this.CURRENT_LINE === (this.DATA.MESSAGES[0].LINES.length - 1)) {
+					if(this.DATA.MESSAGES[0].REF && this.DATA.MESSAGES[0].COMPLETES) {
+						this.stateHelper.CompleteTask(this.DATA.MESSAGES[0].REF,this.DATA.MESSAGES[0].COMPLETES)
+					}
+				}
+
+				this.CURRENT_LINE = 0;
+				this.DIALOG.dialogText.setVisible(false);
+				this.DIALOG.dialogText.text = '';
+				this.DIALOG.setVisible(false);
+				this.DIALOG.IS_OPEN = false;
+				this.OCCUPIED = false;
+			}
 		},this);
 
         let NPCWalkDownAnimation = {
@@ -107,23 +118,30 @@ export default class NPC extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	showMessage() {
-		if(this.config.dialog) {
+		if(this.DIALOG) {
 			this.setVelocity(0);
-			this.occupied = true;
-			this.config.dialog.setVisible(true);
-			this.config.dialog.setMessage(this.data.MESSAGE);
+			this.OCCUPIED = true;
+			this.DIALOG.setVisible(true);
+
+			//If there is more than one line then show the first and handle going through them, 
+			//otherwise the just show the first single line itself.
+			if(this.DATA.MESSAGES[0].LINES.length > 1) {
+				this.DIALOG.setMessage(this.DATA.MESSAGES[0].LINES[this.CURRENT_LINE].CONTENT);
+			} else {
+				this.DIALOG.setMessage(this.DATA.MESSAGES[0].LINES[0].CONTENT);
+			}
 		}
 	}
 
 	preUpdate() {
-		if(this.data.MESSAGE) {
+		if(this.DATA.MESSAGES) {
 			this.bubble.x = this.x - 2;
 			this.bubble.y = this.y - 17;
 		}
 	}
 
 	moveDirection() {
-		if(!this.occupied) {
+		if(!this.OCCUPIED) {
 			let directions = [
 				'right',
 				'left',

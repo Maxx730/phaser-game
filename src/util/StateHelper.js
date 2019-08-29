@@ -3,45 +3,18 @@ export default class StateHelper {
 		this.state = state;
 	}
 
-	FindAllContaining(id) {
-		let quests = new Array();
-
-		Object.keys(this.state.QUESTS).map(quest => {
-			Object.keys(this.state.QUESTS[quest].CONDITIONS).map(condition => {
-				if(this.state.QUESTS[quest].CONDITIONS[condition].ID === id) {
-					quests.push(this.state.QUESTS[quest]);
-				}
-			});
-		});
-
-		return quests;
-	}
-
-	FindAllDependingOn(questId) {
-		let quests = new Array();
-
-		Object.keys(this.state.QUESTS).map(quest => {
-			if(this.state.QUESTS[quest].DEPENDS_ON === questId) {
-				quests.push(this.state.QUESTS[quest]);
+	//Completes a task based on the referenced Quest as well as 
+	//the task ID 
+	CompleteTask(ref,taskId) {
+		this.state.QUESTLINES.map(quest => {
+			if(quest.ID === ref) {
+				quest.TASKS.map(task => {
+					if(task.ID === taskId) {
+						task.COMPLETED = true;
+						console.log(this.state)
+					}
+				})
 			}
-		});
-
-		return quests;
-	}
-
-	AreDependenciesCompleted(dependsId) {
-		let satisfied = true;
-
-		Object.keys(this.state.QUESTS).map(quest => {
-			if(this.state.QUESTS[quest].ID === dependsId && !this.state.QUESTS[quest].COMPLETED) {
-				satisfied = false;
-			}
-		});
-
-		return satisfied;
-	}
-
-	UpdateQuest(quest) {
-		console.log(quest)
+		})
 	}
 }

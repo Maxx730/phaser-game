@@ -20,7 +20,50 @@ export const constants = {
 
 		},
 		TOWNS: {
-			TOWNONE: 'TownOne'
+			TOWNONE:{
+				ID:'TownOne',
+				NPCS: [
+					{
+						ID: 'human1',
+						MESSAGES: [
+							{
+								ID: 0,
+								REF: 'QUEST_1',
+								COMPLETES: 'TASK_1',
+								LINES:[
+									{
+										CONTENT: ['TEST LINE 1']
+									},
+									{
+										CONTENT: ['TEST LINE 2']
+									},
+									{
+										CONTENT: ['TEST LINE 3']
+									}
+								]
+							}
+						]
+					},
+					{
+						ID: 'human2',
+						MESSAGES: [
+							{
+								ID: 0,
+								REF: 'QUEST_1',
+								DEPENDS: 'TASK_1',
+								LINES:[
+									{
+										CONTENT: ['Look At That']
+									},
+									{
+										CONTENT: ['You completed your first Task!']
+									}
+								]
+							}
+						]
+					}
+				]				
+			}
 		},
 		Routes: {
 			
